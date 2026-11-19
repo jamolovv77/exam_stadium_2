@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}safai man{% endblock %}
+
+{% block content %}
+    <h1>sahifai man</h1>
+
+<div class="grid">
+{% for booking in bookings %}
+    <div class="card">
+        {% if booking.field.photo %}
+            <img src="{{ booking.field.photo.url }}" alt="{{ booking.field.name }}">
+        {% endif %}
+
+        <div class="card-body">
+            <h3>{{ booking.field.name }}</h3>
+            <p class="muted">{{ booking.field.address }}</p>
+            <p><b>{{ booking.field.price }} SOMONI</b></p>
+
+    {% if booking.has_team %}
+        <p>man kamana doram</p>
+    {% else %}
+        <p>bozingar darkor: {{ booking.players_needed }}</p>
+        <p>dobavit:
+            {% for p in booking.participants.all %}
+                <a href="{% url 'user_profile' p.user.pk %}">{{ p.user.username }}</a>
+            {% empty %}
+                yagon kas nadaromad
+            {% endfor %}
+        </p>
+    {% endif %}
+
+        <a class="btn" href="{% url 'booking_detail' booking.pk %}">Details</a>
+
+        <form method="POST" action="{% url 'finish_booking' booking.pk %}">
+            {% csrf_token %}
+            <button class="btn" type="submit">bozi bud wud</button>
+        </form>
+
+        <form method="POST" action="{% url 'cancel_booking' booking.pk %}">
+        {% csrf_token %}
+            <button class="btn danger" type="submit">Cancel</button>
+        </form>
+    </div>
+</div>
+{% empty %}
+    <p class="muted">yagon kas nadaromad</p>
+{% endfor %}
+</div>
+
+<h1>istorya</h1>
+
+<div class="grid">
+{% for booking in history %}
+    <div class="card">
+        <div class="card-body">
+        <h3>{{ booking.field.name }}</h3>
+        <p>Status: {{ booking.get_status_display }}</p>
+        <p class="muted">{{ booking.created_at|date:"d.m.Y H:i" }}</p>
+        <a class="btn" href="{% url 'booking_detail' booking.pk %}">detaylho</a>
+    </div>
+</div>
+{% empty %}
+<p class="muted">iistorya</p>
+{% endfor %}
+</div>
+{% endblock %}

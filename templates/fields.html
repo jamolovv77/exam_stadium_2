@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}fieldho{% endblock %}
+
+{% block content %}
+<h1>fieldho</h1>
+<form class="filter" method="GET">
+<input type="text" name="q" placeholder="name yo adres" value="{{ query|default:'' }}">
+
+<select name="category">
+    <option value="">hamai categoriyaho</option>
+    {% for category in categories %}
+        <option value="{{ category.id }}" {% if category_id == category.id|stringformat:"s" %}selected{% endif %}>
+            {{ category.name }}
+        </option>
+    {% endfor %}
+</select>
+
+<button class="btn" type="submit">search</button>
+</form>
+
+<div class="grid">
+{% for field in fields %}
+    <div class="card">
+        {% if field.photo %}
+            <img src="{{ field.photo.url }}" alt="{{ field.name }}">
+        {% endif %}
+
+<div class="card-body">
+    <h3>{{ field.name }}</h3>
+    <p class="muted"> {{ field.address }}</p>
+    <p>{{ field.category.name }} · {{ field.category.players_count }} players</p>
+    <p class="desc">{{ field.description }}</p>
+    <p><b>{{ field.price }} TJS</b></p>
+
+    {% if field.is_free %}
+        <span class="badge free">free</span>
+
+        <form class="rent" method="POST" action="{% url 'book_field' field.pk %}">
+            {% csrf_token %}
+
+    <label>
+        <input type="radio" name="has_team" value="yes" checked>man kamanda doram</label>
+    <label>
+        <input type="radio" name="has_team" value="no">ba man bozingar darkor</label>
+
+    <input class="players" type="number" name="players_needed" min="1"
+            placeholder="How many players do you need?">
+
+    <button class="btn" type="submit">in stadiyonro ijora giren</button>
+        </form>
+    {% else %}
+        <span class="badge busy">zanit</span>
+    {% endif %}
+    </div>
+</div>
+{% empty %}
+<p class="muted">yagon fayl yoft nawud</p>
+{% endfor %}
+</div>
+{% endblock %}
