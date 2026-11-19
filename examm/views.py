@@ -22,18 +22,13 @@ def home(request):
 def registration(request):
     if request.method =='POST':
         data =request.POST
-        if CustomUser.objects.filter(username=data['username']).exists():
+        if CustomUser.objects.filter(username=data['username']):
             return redirect('registration')
         user =CustomUser.objects.create_user(
             username=data['username'],
             email= data['email'],
             password=data['password'],
         )
-
-
-
-
-
         if request.FILES.get('photo'):
             user.photo =request.FILES['photo']
             user.save()
@@ -88,9 +83,6 @@ def giriftani_igrok(request):
         fields = fields.filter(category_id=category_id)
 
 
-
-
-
     return render(request,'fields.html', {
     "fields": fields,
     "categories": categories,
@@ -107,21 +99,11 @@ def giriftani_igrok(request):
 @login_required
 def book_igrok(request, pk):
     field =get_object_or_404(Field, pk=pk)
-
-
-
-
-
-
-
-
     data = request.POST
     has_team = data.get('has_team') =='yes'
-    players_needed =None
     if not has_team:
         value = data.get('players_needed', '')
-        if not value.isdigit() or int(value) <=1:
-            messages.error(request, "chand bozingar wumo lozim dored")
+        if int(value) <=1:
             return redirect('fields')
         
 
@@ -129,8 +111,10 @@ def book_igrok(request, pk):
         user=request.user,
         field=field,
         has_team=has_team,
-        players_needed=players_needed
+        players_needed=''
     )
+
+
     field.is_free = False
     field.save()
     messages.success(request, "polya band ast")
@@ -142,16 +126,10 @@ def book_igrok(request, pk):
 
 @login_required
 def igroko_ma(request):
-
     bookings =Booking.objects.filter(user=request.user, status='active')
-    bookings =bookings.prefetch_related('participants__user')
-
-
-
-
-
     history =Booking.objects.filter(user=request.user)
-    history =history.exclude(status='active')
+
+
 
     return render(request, 'bookings.html',{"bookings":bookings, "history":history})
 
@@ -233,14 +211,14 @@ def profil(request):
     user = request.user
     if request.method == 'POST':
         data = request.POST
-        if CustomUser.objects.filter(username=data['username']).exists():
+        if CustomUser.objects.filter(username=data['username']):
             return redirect('profile')
         user.username = data['username']
         user.email =data['email']
         user.phone =data['phone']
         user.about =data['about']
         if request.FILES.get('photo'):
-            user.photo = request.FILES['photo']
+            user.photo =request.FILES['photo']
         user.save()
     return redirect('profile')
 
